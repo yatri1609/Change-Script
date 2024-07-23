@@ -36,8 +36,13 @@ def update_credentials(file_path, comment, new_username, new_password):
                 # Update the next two lines assuming they need to be updated
                 if i < len(lines):
                     key, value = lines[i].strip().split('=')
-                    file.write(f'{key}={new_username}\n')
-                    updated = True
+                    # If current_username is same as new_username 
+                    if value == {new_username}:
+                        break
+                    # Else update the username
+                    else:
+                        file.write(f'{key}={new_username}\n')
+                        updated = True
                 if i + 1 < len(lines):
                     key, value = lines[i + 1].strip().split('=')
                     file.write(f'{key}={new_password}\n')
@@ -54,7 +59,7 @@ def update_credentials(file_path, comment, new_username, new_password):
 
 if __name__ == '__main__':
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Update username and password in all settings.properties files.')
+    parser = argparse.ArgumentParser(description='Update username and password in all dbsettings.properties files.')
     parser.add_argument('directory', type=str, help='Root directory path where settings.properties files are located.')
     parser.add_argument('comment', type=str, help='Comment to look for in the settings.properties files.')
     parser.add_argument('new_username', type=str, help='New username to update to.')
