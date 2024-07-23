@@ -33,10 +33,10 @@ def update_credentials(file_path, comment, new_username, new_password):
                 file.write(line)
             elif should_update and '=' in line:
                 key, value = line.strip().split('=')
-                if key.strip().endswith('user'):
+                if key.strip().__contains__('user'):
                     file.write(f'{key}={new_username}\n')
                     updated = True
-                elif key.strip().endswith('password'):
+                elif key.strip().__contains__('password'):
                     file.write(f'{key}={new_password}\n')
                     updated = True
                 else:
