@@ -15,47 +15,8 @@ def backup_and_update_credentials_in_directory(directory, comment, new_username,
                 backup_file_path = f'{file_path}-{timestamp}.bak'
                 # Create a backup of the original file
                 shutil.copyfile(file_path, backup_file_path)
-                # Update credentials in original file
+                # Update credentials in the original file
                 update_credentials(file_path, comment, new_username, new_password)
-
-""" def update_credentials(file_path, comment, new_username, new_password):
-    # Read the content of the file
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    # Update the username and password if the commented line is found
-    updated = False
-    with open(file_path, 'w') as file:
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            if line.strip() == f'//{comment}':
-                # Skip current line
-                file.write(line)
-                i += 1
-                # Update the next two lines assuming they need to be updated
-                if i < len(lines):
-                    key, value = lines[i].strip().split('=')
-                    # If current_username is same as new_username 
-                    if value == {new_username}:
-                        break
-                    # Else update the username
-                    else:
-                        file.write(f'{key}={new_username}\n')
-                        updated = True
-                if i + 1 < len(lines):
-                    key, value = lines[i + 1].strip().split('=')
-                    file.write(f'{key}={new_password}\n')
-                    updated = True
-                i += 2  # Move to the line after the updated lines
-            else:
-                file.write(line)
-                i += 1
-
-    if updated:
-        print(f"Updated '{file_path}': Username and password updated successfully to '{new_username}' and '{new_password}'.")
-    else:
-        print(f"Skipped '{file_path}': Commented line '//{comment}' not found.")"""
 
 def update_credentials(file_path, comment, new_username, new_password):
     # Read the content of the file
@@ -64,52 +25,32 @@ def update_credentials(file_path, comment, new_username, new_password):
 
     # Update the username and password if the commented line is found
     updated = False
+    should_update = False
     with open(file_path, 'w') as file:
-        i = 0
-        while i < len(lines):
-            line = lines[i]
+        for line in lines:
             if line.strip() == f'//{comment}':
-                # Skip current line
+                should_update = True
                 file.write(line)
-                i += 1
-                # Update the lines for username and password
-                user_updated = False
-                password_updated = False
-                while i < len(lines):
-                    parts = lines[i].strip().split('=')
-                    if len(parts) >= 2:
-                        key, value = parts[0], '='.join(parts[1:])
-                        if key.endswith('.db.user'):
-                            if not user_updated:
-                                if value.strip() != new_username:
-                                    file.write(f'{key}={new_username}\n')
-                                    updated = True
-                                    user_updated = True
-                                else:
-                                    file.write(lines[i])
-                        elif key.endswith('.db.password'):
-                            if not password_updated:
-                                file.write(f'{key}={new_password}\n')
-                                updated = True
-                                password_updated = True
-                            else:
-                                file.write(lines[i])
-                        else:
-                            file.write(lines[i])
-                    else:
-                        file.write(lines[i])
-                    i += 1
-                break
+            elif should_update and '=' in line:
+                key, value = line.strip().split('=')
+                if key.strip().endswith('user'):
+                    file.write(f'{key}={new_username}\n')
+                    updated = True
+                elif key.strip().endswith('password'):
+                    file.write(f'{key}={new_password}\n')
+                    updated = True
+                else:
+                    file.write(line)
+                # Stop updating after the first update
+                if updated:
+                    should_update = False
             else:
                 file.write(line)
-                i += 1
 
     if updated:
-        print(f"Updated '{file_path}': Username and password updated successfully to '{new_username}' and '{new_password}'.")
+        print(f"Updated '{file_path}': Username and/or password updated successfully.")
     else:
-        print(f"Skipped '{file_path}': Commented line '//{comment}' not found.")
-
-
+        print(f"Skipped '{file_path}': Commented line '//{comment}' not found or no updates needed.")
 
 if __name__ == '__main__':
     # Parse command line arguments
